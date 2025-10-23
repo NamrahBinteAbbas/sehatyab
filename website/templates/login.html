@@ -1,0 +1,467 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sehatyab - Login / Sign Up</title>
+    <!-- Favicon: A simple leaf/plant emoji for 'Sehatyab' (wellness) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
+
+    <style>
+        /*
+         * Sehatyab Login/Signup Forms
+         * Vibe: Minimalist, clean, inviting.
+         * Color Scheme: Light (off-whites, pale greens, muted blues), natural accents.
+         * Layout: Responsive, centered container (CSS Grid), Flexbox for components.
+         * Visuals: Full-screen, muted, auto-playing, looping background video (wellness/nature).
+         * Design Trends: Soft neumorphism, subtle CSS transitions, elegant sans-serif (Poppins, Inter), ample whitespace.
+         * Accessibility: Prioritized with labels, focus states.
+         */
+
+        /* Google Fonts Import */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        /* CSS Variables for Color Scheme */
+        :root {
+            --color-background-light: #f0f2f5;
+            --color-surface: #ffffff;
+            --color-text-dark: #333333;
+            --color-text-light: #666666;
+            --color-primary-green: #a7d9b9; /* Pale green */
+            --color-primary-blue: #89a8c0; /* Muted blue */
+            --color-accent-shadow-light: #ffffff; /* Lighter shadow for neumorphism */
+            --color-accent-shadow-dark: #d0d3d7; /* Darker shadow for neumorphism */
+            --color-border-subtle: #e0e0e0;
+            --color-focus-outline: #89a8c0; /* Muted blue for focus */
+        }
+
+        /* Base Reset & Typography */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--color-text-dark);
+            background-color: var(--color-background-light);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: grid; /* Using grid for robust centering */
+            place-items: center;
+            overflow: hidden; /* Hide scrollbar caused by video slightly exceeding viewport */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        /* Full-screen Background Video */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: -2; /* Below overlay and content */
+        }
+
+        .video-background video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures video covers the entire area */
+            filter: brightness(0.7) grayscale(0.2); /* Mute and soften the video */
+        }
+
+        /* Video Overlay for better contrast and muted effect */
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(240, 242, 245, 0.6); /* Semi-transparent background-light */
+            z-index: -1; /* Above video, below content */
+        }
+
+        /* Auth Container - CSS Grid for centering, Flexbox for internal elements */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+            z-index: 1; /* Ensure content is above video/overlay */
+        }
+
+        /* Auth Box - Main form wrapper */
+        .auth-box {
+            background-color: var(--color-surface);
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            /* Soft Neumorphism effect */
+            box-shadow: 8px 8px 16px var(--color-accent-shadow-dark),
+                       -8px -8px 16px var(--color-accent-shadow-light);
+            transition: transform 0.3s ease;
+        }
+
+        .auth-box:hover {
+            transform: translateY(-2px);
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: var(--color-primary-green);
+            letter-spacing: -0.5px;
+            font-weight: 700;
+        }
+
+        /* Tab Switcher */
+        .tab-switcher {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+
+        .tab-button {
+            background-color: var(--color-background-light);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            font-size: 1em;
+            color: var(--color-text-light);
+            /* Soft neumorphism for buttons */
+            box-shadow: 5px 5px 10px var(--color-accent-shadow-dark),
+                       -5px -5px 10px var(--color-accent-shadow-light);
+            transition: all 0.3s ease;
+            outline: none; /* Removed default outline for custom focus */
+        }
+
+        .tab-button:hover:not(.active) {
+            transform: translateY(-2px);
+            color: var(--color-text-dark);
+            box-shadow: 3px 3px 8px var(--color-accent-shadow-dark),
+                       -3px -3px 8px var(--color-accent-shadow-light);
+        }
+
+        .tab-button.active {
+            background-color: var(--color-primary-green);
+            color: var(--color-surface);
+            /* Inset shadow for "pressed" effect */
+            box-shadow: inset 3px 3px 7px var(--color-primary-green),
+                        inset -3px -3px 7px rgba(255, 255, 255, 0.7);
+            transform: scale(0.98);
+        }
+
+        .tab-button:focus-visible {
+            outline: 2px solid var(--color-focus-outline);
+            outline-offset: 3px;
+        }
+
+        /* Auth Forms */
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: all 0.5s ease-in-out;
+            opacity: 1;
+            height: auto;
+            overflow: visible;
+        }
+
+        .auth-form.hidden {
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            pointer-events: none; /* Disable interaction when hidden */
+            margin-top: -20px; /* Adjust to collapse more smoothly */
+        }
+
+        .form-group {
+            text-align: left;
+            position: relative; /* For password toggle */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--color-text-light);
+            font-size: 0.95em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--color-background-light);
+            font-family: 'Inter', sans-serif;
+            font-size: 1em;
+            color: var(--color-text-dark);
+            /* Soft neumorphism inset for inputs */
+            box-shadow: inset 3px 3px 7px var(--color-accent-shadow-dark),
+                        inset -3px -3px 7px var(--color-accent-shadow-light);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            background-color: var(--color-surface); /* Slightly change background on focus */
+            box-shadow: inset 2px 2px 5px var(--color-accent-shadow-dark),
+                        inset -2px -2px 5px var(--color-accent-shadow-light),
+                        0 0 0 3px var(--color-focus-outline); /* Focus ring */
+        }
+
+        .form-group input::placeholder {
+            color: var(--color-text-light);
+            opacity: 0.7;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 60%; /* Adjust based on label + input height */
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--color-text-light);
+            cursor: pointer;
+            font-size: 0.9em;
+            padding: 5px;
+            transition: color 0.2s ease;
+            outline: none;
+        }
+
+        .password-toggle:hover {
+            color: var(--color-primary-blue);
+        }
+
+        .password-toggle:focus-visible {
+            outline: 2px solid var(--color-focus-outline);
+            outline-offset: 2px;
+            border-radius: 5px;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            background-color: var(--color-primary-blue); /* Muted blue for action */
+            color: var(--color-surface);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            /* Stronger neumorphism for action button */
+            box-shadow: 7px 7px 14px var(--color-accent-shadow-dark),
+                       -7px -7px 14px var(--color-accent-shadow-light);
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            outline: none;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 10px 10px 20px var(--color-accent-shadow-dark),
+                       -10px -10px 20px var(--color-accent-shadow-light);
+            background-color: #7a9cb5; /* Slightly darker blue on hover */
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+            box-shadow: inset 5px 5px 10px var(--color-primary-blue),
+                        inset -5px -5px 10px rgba(255, 255, 255, 0.7);
+        }
+
+        .submit-button:focus-visible {
+            outline: 2px solid var(--color-focus-outline);
+            outline-offset: 3px;
+        }
+
+        .forgot-password, .terms-link {
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            text-decoration: none;
+            margin-top: -10px; /* Pull closer to button */
+            display: block;
+            text-align: right;
+            transition: color 0.2s ease;
+        }
+
+        .forgot-password:hover, .terms-link:hover {
+            color: var(--color-primary-blue);
+        }
+
+        .terms-text {
+            font-size: 0.85em;
+            color: var(--color-text-light);
+            margin-top: -5px;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 600px) {
+            .auth-box {
+                padding: 30px 20px;
+                margin: 20px;
+            }
+
+            .logo {
+                font-size: 2em;
+                margin-bottom: 25px;
+            }
+
+            .tab-button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .form-group label, .form-group input {
+                font-size: 0.9em;
+                padding: 12px 15px;
+            }
+
+            .submit-button {
+                padding: 12px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Full-screen Background Video -->
+    <div class="video-background">
+        <!-- Using a free stock video with a wellness/healthy food theme -->
+        <video autoplay loop muted playsinline>
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-healthy-food-in-a-bowl-47672-large.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <main class="auth-container">
+        <div class="auth-box">
+            <h1 class="logo">Sehatyab</h1>
+
+            <div class="tab-switcher">
+                <button id="login-tab" class="tab-button active" aria-controls="login-form">Login</button>
+                <button id="signup-tab" class="tab-button" aria-controls="signup-form">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form" aria-labelledby="login-tab">
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" name="email" placeholder="your@example.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" placeholder="••••••••" required autocomplete="current-password">
+                    <button type="button" class="password-toggle" data-target="login-password" aria-label="Show password">👁️</button>
+                </div>
+                <a href="#" class="forgot-password">Forgot password?</a>
+                <button type="submit" class="submit-button">Login</button>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form id="signup-form" class="auth-form hidden" aria-labelledby="signup-tab">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" name="name" placeholder="John Doe" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email Address</label>
+                    <input type="email" id="signup-email" name="email" placeholder="your@example.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" name="password" placeholder="••••••••" required autocomplete="new-password">
+                    <button type="button" class="password-toggle" data-target="signup-password" aria-label="Show password">👁️</button>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm-password">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" name="confirm_password" placeholder="••••••••" required autocomplete="new-password">
+                    <button type="button" class="password-toggle" data-target="signup-confirm-password" aria-label="Show password">👁️</button>
+                </div>
+                <p class="terms-text">
+                    By signing up, you agree to our <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="terms-link">Privacy Policy</a>.
+                </p>
+                <button type="submit" class="submit-button">Sign Up</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginTab = document.getElementById('login-tab');
+            const signupTab = document.getElementById('signup-tab');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+
+            // Function to switch active tab and form
+            const switchForm = (activeFormId) => {
+                // Deactivate all tabs and forms
+                loginTab.classList.remove('active');
+                signupTab.classList.remove('active');
+                loginForm.classList.add('hidden');
+                signupForm.classList.add('hidden');
+
+                // Activate the selected tab and form
+                if (activeFormId === 'login-form') {
+                    loginTab.classList.add('active');
+                    loginForm.classList.remove('hidden');
+                    loginForm.setAttribute('aria-hidden', 'false');
+                    signupForm.setAttribute('aria-hidden', 'true');
+                } else {
+                    signupTab.classList.add('active');
+                    signupForm.classList.remove('hidden');
+                    signupForm.setAttribute('aria-hidden', 'false');
+                    loginForm.setAttribute('aria-hidden', 'true');
+                }
+            };
+
+            // Event Listeners for tab buttons
+            loginTab.addEventListener('click', () => switchForm('login-form'));
+            signupTab.addEventListener('click', () => switchForm('signup-form'));
+
+            // Password Toggle functionality
+            document.querySelectorAll('.password-toggle').forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetId = button.dataset.target;
+                    const passwordInput = document.getElementById(targetId);
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        button.textContent = '🙈'; // Hide icon
+                        button.setAttribute('aria-label', 'Hide password');
+                    } else {
+                        passwordInput.type = 'password';
+                        button.textContent = '👁️'; // Show icon
+                        button.setAttribute('aria-label', 'Show password');
+                    }
+                });
+            });
+
+            // Initial state for ARIA attributes
+            loginForm.setAttribute('aria-hidden', 'false');
+            signupForm.setAttribute('aria-hidden', 'true');
+        });
+    </script>
+</body>
+</html>
+```
