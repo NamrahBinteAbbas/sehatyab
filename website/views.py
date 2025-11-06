@@ -9,3 +9,5 @@ def login():
     return render_template("login.html")
 def signup():
     return render_template("signup.html")
+def admin():
+    return render_template("admin.html")
