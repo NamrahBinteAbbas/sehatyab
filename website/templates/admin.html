@@ -1,122 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sehatyab Admin Panel</title>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      display: flex;
-      background: #f6f8fb;
-    }
-    .sidebar {
-      width: 240px;
-      background: #2c3e50;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-      position: fixed;
-    }
-    .sidebar h2 {
-      color: #1abc9c;
-      text-align: center;
-    }
-    .sidebar ul {
-      list-style: none;
-      padding: 0;
-      margin-top: 30px;
-    }
-    .sidebar ul li {
-      padding: 12px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .sidebar ul li:hover,
-    .sidebar ul li.active {
-      background: #1abc9c;
-    }
-    .content {
-      margin-left: 260px;
-      padding: 30px;
-      width: 100%;
-    }
-    h1 {
-      color: #2c3e50;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      border-radius: 6px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 14px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    th {
-      background: #1abc9c;
-      color: white;
-    }
-    .btn {
-      padding: 6px 10px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      color: white;
-    }
-    .approve { background: #2ecc71; }
-    .reject { background: #e74c3c; }
-    .paid { background: #3498db; }
-    .unpaid { background: #e67e22; }
-  </style>
-</head>
-<body>
-  <div class="sidebar">
-    <h2>Admin Panel</h2>
-    <ul>
-      <li class="active">Appointments</li>
-      <li>Assign Doctor</li>
-      <li>Billing</li>
-      <li>Doctor Availability</li>
-      <li>Patient Mapping</li>
-    </ul>
-  </div>
+  <title>Sehatyaab | Admin</title>
 
-  <div class="content">
-    <h1>Appointments</h1>
-    <table>
-      <tr>
-        <th>Appointment ID</th>
-        <th>Patient</th>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-      <tr>
-        <td>APT001</td>
-        <td>Ali Raza</td>
-        <td>2025-11-05</td>
-        <td>Pending</td>
-        <td>
-          <button class="btn approve">Approve</button>
-          <button class="btn reject">Reject</button>
-        </td>
-      </tr>
-      <tr>
-        <td>APT002</td>
-        <td>Sara Khan</td>
-        <td>2025-11-06</td>
-        <td>Approved</td>
-        <td>
-          <button class="btn reject">Reject</button>
-        </td>
-      </tr>
-    </table>
-  </div>
+  <!-- Link CSS -->
+  <link rel="stylesheet" href="/website/static/style.css">
+
+  <!-- Bootstrap CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+
+</head>
+
+<body>
+  <main>
+    <div class="sidebar">
+      <h2>Admin Panel</h2>
+      <ul>
+        <li class="active">Appointments</li>
+        <li>Assign Doctor</li>
+        <li>Billing</li>
+        <li>Doctor Availability</li>
+        <li>Patient Mapping</li>
+      </ul>
+    </div>
+
+    <div class="content">
+      <h1>Appointments</h1>
+      <table>
+        <tr>
+          <th>Appointment ID</th>
+          <th>Patient</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+        <tr>
+          <td>APT001</td>
+          <td>Ali Raza</td>
+          <td>2025-11-05</td>
+          <td>Pending</td>
+          <td>
+            <button class="btn approve">Approve</button>
+            <button class="btn reject">Reject</button>
+          </td>
+        </tr>
+        <tr>
+          <td>APT002</td>
+          <td>Sara Khan</td>
+          <td>2025-11-06</td>
+          <td>Approved</td>
+          <td>
+            <button class="btn reject">Reject</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+    crossorigin="anonymous"></script>
+
+  <!-- LInk JS path -->
+  <script src="/website/static/index.js"></script>
+
 </body>
+
 </html>
