@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sehatyaab - Doctor Panel</title>
+  
+  <!-- Bootstrap CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  
+  <link rel="stylesheet" href="/website/static/style.css">
+  
+  <style>
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .calendar-day:hover {
+      border-color: #1abc9c;
+      transform: scale(1.05);
+    }
+    
+    .calendar-header {
+      font-weight: bold;
+      color: #2c3e50;
+      padding: 10px;
+      text-align: center;
+    }
+    
+    .day-empty {
+      background: #f8f9fa;
+    }
+    
+    .day-available {
+      background: white;
+      color: #2c3e50;
+    }
+    
+    .day-booked {
+      background: #1abc9c;
+      color: white;
+    }
+    
+    .day-partial {
+      background: #f39c12;
+      color: white;
+    }
+    
+    .day-today {
+      border: 3px solid #3498db;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Doctor Panel</h2>
+    <ul>
+      <li class="active">My Appointments</li>
+      <li>Calendar View</li>
+      <li>Profile</li>
+      <li style="margin-top: 20px; background: #e74c3c;">Logout</li>
+    </ul>
+  </div>
+
+  <div class="content">
+    <h1>My Appointments</h1>
+    
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h5 class="text-muted">Today</h5>
+            <h2 style="color: #1abc9c;">5</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h5 class="text-muted">This Week</h5>
+            <h2 style="color: #3498db;">18</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h5 class="text-muted">This Month</h5>
+            <h2 style="color: #9b59b6;">67</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+          <div class="card-body">
+            <h5 class="text-muted">Total Patients</h5>
+            <h2 style="color: #e67e22;">142</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <table>
+      <tr>
+        <th>Date & Time</th>
+        <th>Patient Name</th>
+        <th>Contact</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+      <tr>
+        <td>Nov 16, 09:00 AM</td>
+        <td>Ali Raza</td>
+        <td>0300-1234567</td>
+        <td>Regular Checkup</td>
+        <td>Confirmed</td>
+        <td>
+          <button class="btn approve">Start</button>
+          <button class="btn" style="background: #3498db;">Details</button>
+        </td>
+      </tr>
+      <tr>
+        <td>Nov 16, 10:30 AM</td>
+        <td>Sara Khan</td>
+        <td>0321-9876543</td>
+        <td>Follow-up Visit</td>
+        <td>Confirmed</td>
+        <td>
+          <button class="btn approve">Start</button>
+          <button class="btn" style="background: #3498db;">Details</button>
+        </td>
+      </tr>
+      <tr>
+        <td>Nov 16, 02:00 PM</td>
+        <td>Ahmed Hassan</td>
+        <td>0333-4567890</td>
+        <td>Consultation</td>
+        <td>Pending</td>
+        <td>
+          <button class="btn approve">Start</button>
+          <button class="btn" style="background: #3498db;">Details</button>
+        </td>
+      </tr>
+      <tr>
+        <td>Nov 17, 11:00 AM</td>
+        <td>Fatima Noor</td>
+        <td>0345-1122334</td>
+        <td>Lab Report Review</td>
+        <td>Confirmed</td>
+        <td>
+          <button class="btn approve">Start</button>
+          <button class="btn" style="background: #3498db;">Details</button>
+        </td>
+      </tr>
+      <tr>
+        <td>Nov 18, 03:30 PM</td>
+        <td>Usman Ali</td>
+        <td>0312-5566778</td>
+        <td>General Consultation</td>
+        <td>Confirmed</td>
+        <td>
+          <button class="btn approve">Start</button>
+          <button class="btn" style="background: #3498db;">Details</button>
+        </td>
+      </tr>
+    </table>
+    
+    <div style="margin-top: 50px;">
+      <h1>November 2025 Calendar</h1>
+      
+      <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <button class="btn" style="background: #95a5a6;">&larr; Previous</button>
+          <h3 style="margin: 0;">November 2025</h3>
+          <button class="btn" style="background: #95a5a6;">Next &rarr;</button>
+        </div>
+        
+        <div class="calendar">
+          <div class="calendar-header">Sun</div>
+          <div class="calendar-header">Mon</div>
+          <div class="calendar-header">Tue</div>
+          <div class="calendar-header">Wed</div>
+          <div class="calendar-header">Thu</div>
+          <div class="calendar-header">Fri</div>
+          <div class="calendar-header">Sat</div>
+          
+          <!-- Empty days for alignment -->
+          <div class="calendar-day day-empty"></div>
+          <div class="calendar-day day-empty"></div>
+          <div class="calendar-day day-empty"></div>
+          <div class="calendar-day day-empty"></div>
+          <div class="calendar-day day-empty"></div>
+          
+          <!-- November days -->
+          <div class="calendar-day day-available">1</div>
+          <div class="calendar-day day-booked">2</div>
+          <div class="calendar-day day-available">3</div>
+          <div class="calendar-day day-booked">4</div>
+          <div class="calendar-day day-partial">5</div>
+          <div class="calendar-day day-booked">6</div>
+          <div class="calendar-day day-available">7</div>
+          <div class="calendar-day day-booked">8</div>
+          <div class="calendar-day day-available">9</div>
+          <div class="calendar-day day-available">10</div>
+          <div class="calendar-day day-booked">11</div>
+          <div class="calendar-day day-partial">12</div>
+          <div class="calendar-day day-booked">13</div>
+          <div class="calendar-day day-available">14</div>
+          <div class="calendar-day day-booked">15</div>
+          <div class="calendar-day day-booked day-today">16</div>
+          <div class="calendar-day day-available">17</div>
+          <div class="calendar-day day-booked">18</div>
+          <div class="calendar-day day-partial">19</div>
+          <div class="calendar-day day-booked">20</div>
+          <div class="calendar-day day-available">21</div>
+          <div class="calendar-day day-booked">22</div>
+          <div class="calendar-day day-available">23</div>
+          <div class="calendar-day day-booked">24</div>
+          <div class="calendar-day day-available">25</div>
+          <div class="calendar-day day-partial">26</div>
+          <div class="calendar-day day-booked">27</div>
+          <div class="calendar-day day-available">28</div>
+          <div class="calendar-day day-booked">29</div>
+          <div class="calendar-day day-available">30</div>
+        </div>
+        
+        <div style="margin-top: 20px; display: flex; gap: 20px; justify-content: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: #1abc9c; border-radius: 4px;"></div>
+            <span>Fully Booked</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: #f39c12; border-radius: 4px;"></div>
+            <span>Partially Booked</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 20px; height: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 4px;"></div>
+            <span>Available</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+    crossorigin="anonymous"></script>
+</body>
+</html>
