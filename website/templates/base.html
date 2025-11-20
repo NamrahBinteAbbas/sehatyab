@@ -190,11 +190,9 @@
         <div class="logo">Sehatyab</div>
         <nav class="nav-menu">
             <ul>
-                <li><a href="#hero">Home</a></li>
-                <li><a href="login.html">Login</a></li>
-                <li><a href="signup.html" class="btn">Sign Up</a></li>
+                <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                <li><a href="{{ url_for('auth.signup') }}" class="btn">Sign Up</a></li>
                 <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
     </header>

@@ -1,20 +1,7 @@
-from flask import Flask, Blueprint, render_template
-from flask_cors import CORS
-from websites.views import views
-from websites.auth import auth
+# Main entry point of the application
+from website import create_app
 
-app = Flask(__name__)
-CORS(app)
-app.config['SECRET_KEY'] = 'namrahsapp'
+app = create_app()
 
-# register blueprints
-app.register_blueprint(auth)   # for '/' route
-app.register_blueprint(views)  # for '/dashboard' route
-
-app.route('/admin.html')
-def admin():
-    return render_template("admin.html")
-
-if __name__ == "__main__":
-    print("[INFO] Starting Flask app...")
+if __name__ == '__main__':
     app.run(debug=True)
