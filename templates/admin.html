@@ -11,7 +11,7 @@
 
   <!-- Bootstrap CDN -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj6 97FH4R/5mcr" crossorigin="anonymous">
 
 </head>
 
@@ -20,44 +20,184 @@
     <div class="sidebar">
       <h2>Admin Panel</h2>
       <ul>
-        <li class="active">Appointments</li>
-        <li>Assign Doctor</li>
-        <li>Billing</li>
-        <li>Doctor Availability</li>
-        <li>Patient Mapping</li>
+        <li><a href="#appointments" class="active">Appointments</a></li>
+        <li><a href="#assign-doctor">Assign Doctor</a></li>
+        <li><a href="#billing">Billing</a></li>
+        <li><a href="#doctor-availability">Doctor Availability</a></li>
+        <li><a href="#patient-mapping">Patient Mapping</a></li>
       </ul>
     </div>
 
     <div class="content">
-      <h1>Appointments</h1>
-      <table>
-        <tr>
-          <th>Appointment ID</th>
-          <th>Patient</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-        <tr>
-          <td>APT001</td>
-          <td>Ali Raza</td>
-          <td>2025-11-05</td>
-          <td>Pending</td>
-          <td>
-            <button class="btn approve">Approve</button>
-            <button class="btn reject">Reject</button>
-          </td>
-        </tr>
-        <tr>
-          <td>APT002</td>
-          <td>Sara Khan</td>
-          <td>2025-11-06</td>
-          <td>Approved</td>
-          <td>
-            <button class="btn reject">Reject</button>
-          </td>
-        </tr>
-      </table>
+      <!-- Appointments Section -->
+      <div id="appointments" class="page-section active">
+        <h1>Appointments</h1>
+        <table>
+          <tr>
+            <th>Appointment ID</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+          <tr>
+            <td>APT001</td>
+            <td>Ali Raza</td>
+            <td>2025-11-05</td>
+            <td>Pending</td>
+            <td>
+              <button class="btn approve">Approve</button>
+              <button class="btn reject">Reject</button>
+            </td>
+          </tr>
+          <tr>
+            <td>APT002</td>
+            <td>Sara Khan</td>
+            <td>2025-11-06</td>
+            <td>Approved</td>
+            <td>
+              <button class="btn reject">Reject</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Assign Doctor Section -->
+      <div id="assign-doctor" class="page-section">
+        <h1>Assign Doctor</h1>
+        <table>
+          <tr>
+            <th>Patient Name</th>
+            <th>Condition</th>
+            <th>Available Doctors</th>
+            <th>Action</th>
+          </tr>
+          <tr>
+            <td>Ahmed Hassan</td>
+            <td>Cardiology</td>
+            <td>
+              <select class="form-select">
+                <option>Dr. Fatima Ali</option>
+                <option>Dr. Usman Khan</option>
+              </select>
+            </td>
+            <td>
+              <button class="btn approve">Assign</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Ayesha Malik</td>
+            <td>Pediatrics</td>
+            <td>
+              <select class="form-select">
+                <option>Dr. Zara Ahmed</option>
+                <option>Dr. Hamza Rashid</option>
+              </select>
+            </td>
+            <td>
+              <button class="btn approve">Assign</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Billing Section -->
+      <div id="billing" class="page-section">
+        <h1>Billing</h1>
+        <table>
+          <tr>
+            <th>Invoice ID</th>
+            <th>Patient</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+          <tr>
+            <td>INV001</td>
+            <td>Ali Raza</td>
+            <td>Rs. 5,000</td>
+            <td>Unpaid</td>
+            <td>
+              <button class="btn paid">Mark Paid</button>
+            </td>
+          </tr>
+          <tr>
+            <td>INV002</td>
+            <td>Sara Khan</td>
+            <td>Rs. 3,500</td>
+            <td>Paid</td>
+            <td>
+              <button class="btn approve">View</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Doctor Availability Section -->
+      <div id="doctor-availability" class="page-section">
+        <h1>Doctor Availability</h1>
+        <table>
+          <tr>
+            <th>Doctor Name</th>
+            <th>Specialization</th>
+            <th>Available Days</th>
+            <th>Time Slot</th>
+            <th>Action</th>
+          </tr>
+          <tr>
+            <td>Dr. Fatima Ali</td>
+            <td>Cardiology</td>
+            <td>Mon, Wed, Fri</td>
+            <td>9:00 AM - 5:00 PM</td>
+            <td>
+              <button class="btn approve">Edit</button>
+            </td>
+          </tr>
+          <tr>
+            <td>Dr. Usman Khan</td>
+            <td>Neurology</td>
+            <td>Tue, Thu, Sat</td>
+            <td>10:00 AM - 6:00 PM</td>
+            <td>
+              <button class="btn approve">Edit</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Patient Mapping Section -->
+      <div id="patient-mapping" class="page-section">
+        <h1>Patient Mapping</h1>
+        <table>
+          <tr>
+            <th>Patient ID</th>
+            <th>Patient Name</th>
+            <th>Assigned Doctor</th>
+            <th>Department</th>
+            <th>Action</th>
+          </tr>
+          <tr>
+            <td>PT001</td>
+            <td>Ahmed Hassan</td>
+            <td>Dr. Fatima Ali</td>
+            <td>Cardiology</td>
+            <td>
+              <button class="btn approve">Update</button>
+              <button class="btn reject">Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td>PT002</td>
+            <td>Ayesha Malik</td>
+            <td>Dr. Zara Ahmed</td>
+            <td>Pediatrics</td>
+            <td>
+              <button class="btn approve">Update</button>
+              <button class="btn reject">Remove</button>
+            </td>
+          </tr>
+        </table>
+      </div>
     </div>
   </main>
 
@@ -66,8 +206,8 @@
     integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
     crossorigin="anonymous"></script>
 
-  <!-- LInk JS path -->
-  <script src="/website/static/index.js"></script>
+  <!-- Link JS path -->
+  <script src="/static/index.js"></script>
 
 </body>
 

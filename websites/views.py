@@ -11,3 +11,7 @@ def signup():
     return render_template("signup.html")
 def admin():
     return render_template("admin.html")
+def patient():
+    return render_template("patient.html")
+def doctor():
+    return render_template("doctor.html")

@@ -1,0 +1,332 @@
+/* =============================== */
+/* SIGNUP */
+/* =============================== */
+
+/* Custom Sign Up Page Styles */
+
+body {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.signup-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px 35px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 450px;
+  width: 100%;
+  animation: slideIn 0.6s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.signup-title {
+  color: #11998e;
+  font-weight: 700;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.form-label {
+  color: #4a5568;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.form-control {
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #11998e;
+  box-shadow: 0 0 0 0.2rem rgba(17, 153, 142, 0.15);
+}
+
+.role-field {
+  background-color: #f7fafc;
+  cursor: not-allowed;
+  color: #718096;
+}
+
+.signup-btn {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.signup-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+  background: linear-gradient(135deg, #0d7a70 0%, #2dd167 100%);
+}
+
+.signup-btn:active {
+  transform: translateY(0);
+}
+
+.login-link {
+  color: #11998e;
+  transition: color 0.2s ease;
+}
+
+.login-link:hover {
+  color: #38ef7d;
+}
+
+.info-box {
+  background: linear-gradient(135deg, #e0f7f4 0%, #d4f5e9 100%);
+  border: none;
+  border-left: 4px solid #11998e;
+  border-radius: 8px;
+  font-size: 13px;
+  padding: 12px 16px;
+}
+
+.info-box strong {
+  color: #11998e;
+}
+
+/* Input animations */
+.form-control:focus {
+  animation: inputPulse 0.3s ease;
+}
+
+@keyframes inputPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+  .signup-card {
+    padding: 30px 25px;
+    margin: 20px;
+  }
+  
+  .signup-title {
+    font-size: 24px;
+  }
+}
+
+/* =============================== */
+/* LOGIN */
+/* =============================== */
+
+/* Custom Login Page Styles */
+
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px 35px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 420px;
+  width: 100%;
+  animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-title {
+  color: #667eea;
+  font-weight: 700;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.form-label {
+  color: #4a5568;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.form-control,
+.form-select {
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%);
+}
+
+.login-btn:active {
+  transform: translateY(0);
+}
+
+.signup-link {
+  color: #667eea;
+  transition: color 0.2s ease;
+}
+
+.signup-link:hover {
+  color: #764ba2;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+  .login-card {
+    padding: 30px 25px;
+    margin: 20px;
+  }
+  
+  .login-title {
+    font-size: 24px;
+  }
+}
+
+/* =============================== */
+/* ADMIN PANEL */
+/* =============================== */
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  display: flex;
+  background: #f6f8fb;
+}
+
+.sidebar {
+  width: 240px;
+  background: #2c3e50;
+  color: white;
+  height: 100vh;
+  padding: 20px;
+  position: fixed;
+}
+
+.sidebar h2 {
+  color: #1abc9c;
+  text-align: center;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 30px;
+}
+
+.sidebar ul li {
+  padding: 12px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.sidebar ul li:hover,
+.sidebar ul li.active {
+  background: #1abc9c;
+}
+
+.content {
+  margin-left: 260px;
+  padding: 30px;
+  width: 100%;
+}
+
+h1 {
+  color: #2c3e50;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: #1abc9c;
+  color: white;
+}
+
+.btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+}
+
+.approve {
+  background: #2ecc71;
+}
+
+.reject {
+  background: #e74c3c;
+}
+
+.paid {
+  background: #3498db;
+}
+
+.unpaid {
+  background: #e67e22;
+}
+
