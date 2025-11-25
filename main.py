@@ -1,5 +1,5 @@
 # Main entry point of the application
-from website import create_app
+from website import create_app, get_db_connection
 
 app = create_app()
 

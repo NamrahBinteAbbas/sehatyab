@@ -13,6 +13,17 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
 
+  <style>
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .sidebar li {
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
@@ -20,53 +31,134 @@
     <div class="sidebar">
       <h2>Admin Panel</h2>
       <ul>
-        <li class="active">Appointments</li>
-        <li>Assign Doctor</li>
-        <li>Billing</li>
-        <li>Doctor Availability</li>
-        <li>Patient Mapping</li>
+        <li class="active" data-tab="appointments">Appointments</li>
+        <li data-tab="doctors">Doctors</li>
+        <li data-tab="assign">Assign Doctor</li>
+        <li data-tab="billing">Billing</li>
+        <li data-tab="availability">Doctor Availability</li>
+        <li data-tab="mapping">Patient Mapping</li>
       </ul>
     </div>
 
     <div class="content">
-      <h1>Appointments</h1>
-      <table>
-        <tr>
-          <th>Appointment ID</th>
-          <th>Patient</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-        <tr>
-          <td>APT001</td>
-          <td>Ali Raza</td>
-          <td>2025-11-05</td>
-          <td>Pending</td>
-          <td>
-            <button class="btn approve">Approve</button>
-            <button class="btn reject">Reject</button>
-          </td>
-        </tr>
-        <tr>
-          <td>APT002</td>
-          <td>Sara Khan</td>
-          <td>2025-11-06</td>
-          <td>Approved</td>
-          <td>
-            <button class="btn reject">Reject</button>
-          </td>
-        </tr>
-      </table>
+      <!-- Appointments Tab -->
+      <div id="appointments" class="tab-content active">
+        <h1>Appointments</h1>
+        <table>
+          <tr>
+            <th>Appointment ID</th>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+          <tr>
+            <td>APT001</td>
+            <td>Ali Raza</td>
+            <td>2025-11-05</td>
+            <td>Pending</td>
+            <td>
+              <button class="btn approve">Approve</button>
+              <button class="btn reject">Reject</button>
+            </td>
+          </tr>
+          <tr>
+            <td>APT002</td>
+            <td>Sara Khan</td>
+            <td>2025-11-06</td>
+            <td>Approved</td>
+            <td>
+              <button class="btn reject">Reject</button>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Doctors Tab -->
+      <div id="doctors" class="tab-content">
+        <h1>Doctors</h1>
+        <table>
+          <tr>
+            <th>Doctor ID</th>
+            <th>Name</th>
+            <th>Specialization</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Action</th>
+          </tr>
+          {% for doctor in doctors %}
+          <tr>
+            <td>{{ doctor[0] }}</td>
+            <td>{{ doctor[1] }}</td>
+            <td>{{ doctor[2] }}</td>
+            <td>{{ doctor[3] }}</td>
+            <td>{{ doctor[4] }}</td>
+            <td>
+              <button class="btn approve">Edit</button>
+              <button class="btn reject">Delete</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <!-- Assign Doctor Tab -->
+      <div id="assign" class="tab-content">
+        <h1>Assign Doctor</h1>
+        <p>Assign doctor functionality coming soon...</p>
+      </div>
+
+      <!-- Billing Tab -->
+      <div id="billing" class="tab-content">
+        <h1>Billing</h1>
+        <p>Billing management coming soon...</p>
+      </div>
+
+      <!-- Doctor Availability Tab -->
+      <div id="availability" class="tab-content">
+        <h1>Doctor Availability</h1>
+        <p>Doctor availability management coming soon...</p>
+      </div>
+
+      <!-- Patient Mapping Tab -->
+      <div id="mapping" class="tab-content">
+        <h1>Patient Mapping</h1>
+        <p>Patient mapping functionality coming soon...</p>
+      </div>
     </div>
   </main>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+    integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLlvGRem5+R9g2FzA8ZGN954O5Q"
     crossorigin="anonymous"></script>
 
-  <!-- LInk JS path -->
+  <!-- Tab Switching Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebarItems = document.querySelectorAll('.sidebar li');
+      const tabContents = document.querySelectorAll('.tab-content');
+
+      sidebarItems.forEach(item => {
+        item.addEventListener('click', function() {
+          // Remove active class from all sidebar items
+          sidebarItems.forEach(i => i.classList.remove('active'));
+          
+          // Add active class to clicked item
+          this.classList.add('active');
+
+          // Hide all tab contents
+          tabContents.forEach(content => content.classList.remove('active'));
+
+          // Show selected tab content
+          const tabId = this.getAttribute('data-tab');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+    });
+  </script>
+
+  <!-- Link JS path -->
   <script src="/website/static/index.js"></script>
 
 </body>
