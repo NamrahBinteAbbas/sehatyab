@@ -87,7 +87,7 @@
         <div class="card text-center shadow-sm">
           <div class="card-body">
             <h5 class="text-muted">Today</h5>
-            <h2 style="color: #1abc9c;">5</h2>
+            <h2 id="m-today" style="color: #1abc9c;">0</h2>
           </div>
         </div>
       </div>
@@ -95,7 +95,7 @@
         <div class="card text-center shadow-sm">
           <div class="card-body">
             <h5 class="text-muted">This Week</h5>
-            <h2 style="color: #3498db;">18</h2>
+            <h2 id="m-week" style="color: #3498db;">0</h2>
           </div>
         </div>
       </div>
@@ -103,7 +103,7 @@
         <div class="card text-center shadow-sm">
           <div class="card-body">
             <h5 class="text-muted">This Month</h5>
-            <h2 style="color: #9b59b6;">67</h2>
+            <h2 id="m-month" style="color: #9b59b6;">0</h2>
           </div>
         </div>
       </div>
@@ -111,76 +111,23 @@
         <div class="card text-center shadow-sm">
           <div class="card-body">
             <h5 class="text-muted">Total Patients</h5>
-            <h2 style="color: #e67e22;">142</h2>
+            <h2 id="m-patients" style="color: #e67e22;">0</h2>
           </div>
         </div>
       </div>
     </div>
     
     <table>
-      <tr>
-        <th>Date & Time</th>
-        <th>Patient Name</th>
-        <th>Contact</th>
-        <th>Reason</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-      <tr>
-        <td>Nov 16, 09:00 AM</td>
-        <td>Ali Raza</td>
-        <td>0300-1234567</td>
-        <td>Regular Checkup</td>
-        <td>Confirmed</td>
-        <td>
-          <button class="btn approve">Start</button>
-          <button class="btn" style="background: #3498db;">Details</button>
-        </td>
-      </tr>
-      <tr>
-        <td>Nov 16, 10:30 AM</td>
-        <td>Sara Khan</td>
-        <td>0321-9876543</td>
-        <td>Follow-up Visit</td>
-        <td>Confirmed</td>
-        <td>
-          <button class="btn approve">Start</button>
-          <button class="btn" style="background: #3498db;">Details</button>
-        </td>
-      </tr>
-      <tr>
-        <td>Nov 16, 02:00 PM</td>
-        <td>Ahmed Hassan</td>
-        <td>0333-4567890</td>
-        <td>Consultation</td>
-        <td>Pending</td>
-        <td>
-          <button class="btn approve">Start</button>
-          <button class="btn" style="background: #3498db;">Details</button>
-        </td>
-      </tr>
-      <tr>
-        <td>Nov 17, 11:00 AM</td>
-        <td>Fatima Noor</td>
-        <td>0345-1122334</td>
-        <td>Lab Report Review</td>
-        <td>Confirmed</td>
-        <td>
-          <button class="btn approve">Start</button>
-          <button class="btn" style="background: #3498db;">Details</button>
-        </td>
-      </tr>
-      <tr>
-        <td>Nov 18, 03:30 PM</td>
-        <td>Usman Ali</td>
-        <td>0312-5566778</td>
-        <td>General Consultation</td>
-        <td>Confirmed</td>
-        <td>
-          <button class="btn approve">Start</button>
-          <button class="btn" style="background: #3498db;">Details</button>
-        </td>
-      </tr>
+      <thead>
+        <tr>
+          <th>Date & Time</th>
+          <th>Patient Name</th>
+          <th>Contact</th>
+          <th>Reason</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="appt-body"></tbody>
     </table>
     
     <div style="margin-top: 50px;">
@@ -192,56 +139,9 @@
           <h3 style="margin: 0;">November 2025</h3>
           <button class="btn" style="background: #95a5a6;">Next &rarr;</button>
         </div>
-        
-        <div class="calendar">
-          <div class="calendar-header">Sun</div>
-          <div class="calendar-header">Mon</div>
-          <div class="calendar-header">Tue</div>
-          <div class="calendar-header">Wed</div>
-          <div class="calendar-header">Thu</div>
-          <div class="calendar-header">Fri</div>
-          <div class="calendar-header">Sat</div>
-          
-          <!-- Empty days for alignment -->
-          <div class="calendar-day day-empty"></div>
-          <div class="calendar-day day-empty"></div>
-          <div class="calendar-day day-empty"></div>
-          <div class="calendar-day day-empty"></div>
-          <div class="calendar-day day-empty"></div>
-          
-          <!-- November days -->
-          <div class="calendar-day day-available">1</div>
-          <div class="calendar-day day-booked">2</div>
-          <div class="calendar-day day-available">3</div>
-          <div class="calendar-day day-booked">4</div>
-          <div class="calendar-day day-partial">5</div>
-          <div class="calendar-day day-booked">6</div>
-          <div class="calendar-day day-available">7</div>
-          <div class="calendar-day day-booked">8</div>
-          <div class="calendar-day day-available">9</div>
-          <div class="calendar-day day-available">10</div>
-          <div class="calendar-day day-booked">11</div>
-          <div class="calendar-day day-partial">12</div>
-          <div class="calendar-day day-booked">13</div>
-          <div class="calendar-day day-available">14</div>
-          <div class="calendar-day day-booked">15</div>
-          <div class="calendar-day day-booked day-today">16</div>
-          <div class="calendar-day day-available">17</div>
-          <div class="calendar-day day-booked">18</div>
-          <div class="calendar-day day-partial">19</div>
-          <div class="calendar-day day-booked">20</div>
-          <div class="calendar-day day-available">21</div>
-          <div class="calendar-day day-booked">22</div>
-          <div class="calendar-day day-available">23</div>
-          <div class="calendar-day day-booked">24</div>
-          <div class="calendar-day day-available">25</div>
-          <div class="calendar-day day-partial">26</div>
-          <div class="calendar-day day-booked">27</div>
-          <div class="calendar-day day-available">28</div>
-          <div class="calendar-day day-booked">29</div>
-          <div class="calendar-day day-available">30</div>
-        </div>
-        
+        <!-- keep your toolbar above this -->
+<div class="calendar"></div>
+
         <div style="margin-top: 20px; display: flex; gap: 20px; justify-content: center;">
           <div style="display: flex; align-items: center; gap: 8px;">
             <div style="width: 20px; height: 20px; background: #1abc9c; border-radius: 4px;"></div>
@@ -264,5 +164,6 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
     crossorigin="anonymous"></script>
+    <script src="/static/index.js"></script>
 </body>
 </html>
