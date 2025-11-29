@@ -23,6 +23,133 @@
     .sidebar li {
       cursor: pointer;
     }
+    
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-overlay.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Scrollbar styling */
+    .modal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .modal-content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    
+    .modal-content::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 10px;
+    }
+    
+    .modal-content::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #666;
+    }
+    
+    .close-btn:hover {
+      color: #000;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+    
+    .add-doctor-btn {
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+    
+    .add-doctor-btn:hover {
+      background-color: #218838;
+    }
+    
+    .submit-btn {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+    
+    .submit-btn:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 
@@ -77,6 +204,7 @@
       <!-- Doctors Tab -->
       <div id="doctors" class="tab-content">
         <h1>Doctors</h1>
+        <button class="add-doctor-btn" id="addDoctorBtn">+ Add Doctor</button>
         <table>
           <tr>
             <th>Doctor ID</th>
@@ -128,14 +256,62 @@
     </div>
   </main>
 
+  <!-- Add Doctor Modal -->
+  <div class="modal-overlay" id="addDoctorModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add New Doctor</h2>
+        <button class="close-btn" id="closeModal">&times;</button>
+      </div>
+      <form id="addDoctorForm">
+        <div class="form-group">
+          <label for="empId">Employee ID</label>
+          <input type="number" id="empId" name="empId" required placeholder="e.g., 1001">
+        </div>
+        <div class="form-group">
+          <label for="doctorName">Doctor Name</label>
+          <input type="text" id="doctorName" name="doctorName" required placeholder="e.g., Dr. Ahmed Ali">
+        </div>
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender" required>
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="role">Role</label>
+          <input type="text" id="role" name="role" required placeholder="e.g., Doctor" value="Doctor">
+        </div>
+        <div class="form-group">
+          <label for="contact">Contact</label>
+          <input type="text" id="contact" name="contact" required placeholder="e.g., +92-300-1234567">
+        </div>
+        <div class="form-group">
+          <label for="salary">Salary</label>
+          <input type="number" step="0.01" id="salary" name="salary" required placeholder="e.g., 150000">
+        </div>
+        <div class="form-group">
+          <label for="deptId">Department ID</label>
+          <input type="number" id="deptId" name="deptId" required placeholder="e.g., 1">
+        </div>
+        <button type="submit" class="submit-btn">Add Doctor</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLlvGRem5+R9g2FzA8ZGN954O5Q"
     crossorigin="anonymous"></script>
 
-  <!-- Tab Switching Script -->
+  <!-- Tab Switching and Modal Script -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM loaded');
+      
       const sidebarItems = document.querySelectorAll('.sidebar li');
       const tabContents = document.querySelectorAll('.tab-content');
 
@@ -155,6 +331,93 @@
           document.getElementById(tabId).classList.add('active');
         });
       });
+
+      // Modal functionality - using setTimeout to ensure everything is loaded
+      setTimeout(function() {
+        const addDoctorBtn = document.getElementById('addDoctorBtn');
+        const modal = document.getElementById('addDoctorModal');
+        const closeModal = document.getElementById('closeModal');
+        const form = document.getElementById('addDoctorForm');
+
+        console.log('Button:', addDoctorBtn);
+        console.log('Modal:', modal);
+
+        // Open modal
+        if (addDoctorBtn) {
+          addDoctorBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Add Doctor button clicked');
+            modal.classList.add('active');
+          });
+        } else {
+          console.error('Add Doctor button not found');
+        }
+
+        // Close modal
+        if (closeModal) {
+          closeModal.addEventListener('click', function() {
+            modal.classList.remove('active');
+          });
+        }
+
+        // Close modal when clicking outside
+        if (modal) {
+          modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+              modal.classList.remove('active');
+            }
+          });
+        }
+
+        // Handle form submission
+        if (form) {
+          form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+              empid: document.getElementById('empId').value,
+              name: document.getElementById('doctorName').value,
+              gender: document.getElementById('gender').value,
+              role: document.getElementById('role').value,
+              contact: document.getElementById('contact').value,
+              salary: document.getElementById('salary').value,
+              deptid: document.getElementById('deptId').value
+            };
+
+            console.log('Submitting form data:', formData);
+
+            try {
+              // Send data to backend
+              const response = await fetch('/admin/add_doctor', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+              });
+
+              if (response.ok) {
+                // Close modal and reset form
+                modal.classList.remove('active');
+                form.reset();
+                
+                // Show success message
+                alert('Doctor added successfully!');
+                
+                // Reload the page to show the new doctor
+                location.reload();
+              } else {
+                const error = await response.text();
+                alert('Error adding doctor: ' + error);
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Failed to add doctor. Please try again.');
+            }
+          });
+        }
+      }, 100);
     });
   </script>
 
