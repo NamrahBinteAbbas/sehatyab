@@ -59,4 +59,7 @@ def create_app():
     from .doctor_api import doctor
     app.register_blueprint(doctor, url_prefix='/doctor')
 
+    from .employee_auth import employee_auth
+    app.register_blueprint(employee_auth, url_prefix='/')
+
     return app

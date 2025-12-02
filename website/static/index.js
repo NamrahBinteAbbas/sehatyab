@@ -114,7 +114,7 @@ function renderAppointments(list) {
   if (header) table.appendChild(header);
 
   (list || []).forEach(a => {
-    const tr = document.createElement("tr");
+    const tr = loginocument.createElement("tr");
     const statusLabel = (a.status || "").charAt(0).toUpperCase() + (a.status || "").slice(1);
     tr.innerHTML = `
       <td>${fmtDateTime(a.datetime)}</td>
