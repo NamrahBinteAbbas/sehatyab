@@ -121,6 +121,11 @@ The application runs automatically via the "Start Application" workflow which:
 - Full frontend with Material-UI
 - Role-based dashboards for all user types
 - Database integration with Supabase PostgreSQL
+- Security fixes applied (Dec 4, 2025):
+  - Bill payment authorization properly scoped to patient ownership
+  - Doctor room validation ensures consultation rooms only (BedsPerRoom == 0)
+  - Appointment reschedule returns trigger-updated status/count
+  - Doctor availability checks for duplicates before insertion
 
 ## Notes
 - Default consultation fee: Rs. 1000

@@ -306,7 +306,9 @@ def pay_bill(bill_id):
         appt_patient = bill_data['appointmentpatient']
         adm_patient = bill_data['admissionpatient']
         
-        if appt_patient != patient_id and adm_patient != patient_id:
+        owns_bill = (appt_patient == patient_id) or (adm_patient == patient_id)
+        
+        if not owns_bill:
             return jsonify({'error': 'Access denied: This bill does not belong to you'}), 403
         
         execute_query(
