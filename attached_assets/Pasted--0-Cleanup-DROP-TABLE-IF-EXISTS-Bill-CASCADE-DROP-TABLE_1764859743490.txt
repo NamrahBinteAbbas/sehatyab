@@ -1,0 +1,635 @@
+
+
+-- 0. Cleanup
+DROP TABLE IF EXISTS Bill CASCADE;
+DROP TABLE IF EXISTS Admission CASCADE;
+DROP TABLE IF EXISTS Appointment CASCADE;
+DROP TABLE IF EXISTS DoctorAvailability CASCADE;
+DROP TABLE IF EXISTS Doctor CASCADE;
+DROP TABLE IF EXISTS Admin CASCADE;
+DROP TABLE IF EXISTS Patient CASCADE;
+DROP TABLE IF EXISTS Room CASCADE;
+DROP TABLE IF EXISTS RoomType CASCADE;
+DROP TABLE IF EXISTS Employee CASCADE;
+DROP TABLE IF EXISTS Department CASCADE;
+DROP TABLE IF EXISTS UserAuth CASCADE;
+DROP TABLE IF EXISTS HolidayCalendar CASCADE;
+DROP TABLE IF EXISTS RoomTypeStats CASCADE;
+DROP TABLE IF EXISTS Appointment_Audit CASCADE;
+DROP TABLE IF EXISTS Doctor_Audit CASCADE;
+DROP TABLE IF EXISTS Admission_Audit CASCADE;
+
+
+-- ============================================================================
+-- CORE AUTHENTICATION TABLE
+-- ============================================================================
+CREATE TABLE UserAuth (
+    UserID SERIAL PRIMARY KEY,
+    Username VARCHAR(50) UNIQUE NOT NULL,
+    Email VARCHAR(255) UNIQUE NOT NULL,
+    PasswordHash VARCHAR(255) NOT NULL,
+    UserType VARCHAR(20) NOT NULL CHECK (UserType IN ('Patient', 'Doctor', 'Admin', 'Employee')),
+    IsActive CHAR(1) DEFAULT 'Y' CHECK (IsActive IN ('Y','N')),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP,
+    LastLogin TIMESTAMP
+);
+
+CREATE INDEX idx_userauth_username ON UserAuth(Username);
+CREATE INDEX idx_userauth_email ON UserAuth(Email);
+
+
+-- ============================================================================
+-- 1. Department
+-- ============================================================================
+CREATE TABLE Department (
+    DeptID SERIAL PRIMARY KEY,
+    DeptName VARCHAR(100) NOT NULL UNIQUE,
+    Location VARCHAR(100)
+);
+
+
+-- ============================================================================
+-- 2. Employee
+-- ============================================================================
+CREATE TABLE Employee (
+    EmpID SERIAL PRIMARY KEY,
+    UserID INT UNIQUE REFERENCES UserAuth(UserID) ON DELETE SET NULL,
+    Name VARCHAR(100) NOT NULL,
+    Gender VARCHAR(10) CHECK (Gender IN ('Male','Female','Other')),
+    Role VARCHAR(20) CHECK (Role IN ('Doctor','Admin','Receptionist')),
+    Contact VARCHAR(20) UNIQUE,
+    Salary NUMERIC(10,2) CHECK (Salary >= 0),
+    DeptID INT REFERENCES Department(DeptID) ON DELETE SET NULL,
+    IsActive CHAR(1) DEFAULT 'Y' CHECK (IsActive IN ('Y','N')),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION trg_employee_update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.UpdatedAt = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_employee_update_timestamp
+BEFORE UPDATE ON Employee
+FOR EACH ROW
+EXECUTE FUNCTION trg_employee_update_timestamp();
+
+
+-- ============================================================================
+-- 3. Admin
+-- ============================================================================
+CREATE TABLE Admin (
+    AdminID SERIAL PRIMARY KEY,
+    EmpID INT UNIQUE NOT NULL REFERENCES Employee(EmpID) ON DELETE CASCADE,
+    CanManageDoctors BOOLEAN DEFAULT TRUE,
+    CanManageRooms BOOLEAN DEFAULT TRUE,
+    CanViewReports BOOLEAN DEFAULT TRUE,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- ============================================================================
+-- 4. Patient
+-- ============================================================================
+CREATE TABLE Patient (
+    PatientID SERIAL PRIMARY KEY,
+    UserID INT UNIQUE REFERENCES UserAuth(UserID) ON DELETE SET NULL,
+    Name VARCHAR(100) NOT NULL,
+    Age INT CHECK (Age BETWEEN 0 AND 120),
+    Gender VARCHAR(10) CHECK (Gender IN ('Male','Female','Other')),
+    Address VARCHAR(200),
+    ContactNo VARCHAR(20) UNIQUE,
+    BloodGroup VARCHAR(5) CHECK (BloodGroup IN ('A+','A-','B+','B-','O+','O-','AB+','AB-')),
+    EmergencyContact VARCHAR(20),
+    IsActive CHAR(1) DEFAULT 'Y' CHECK (IsActive IN ('Y','N')),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION prevent_patient_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE EXCEPTION 'Patient records cannot be deleted. Set IsActive = ''N'' instead.';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_patient_delete
+BEFORE DELETE ON Patient
+FOR EACH ROW
+EXECUTE FUNCTION prevent_patient_delete();
+
+
+-- ============================================================================
+-- 5. RoomType
+-- ============================================================================
+CREATE TABLE RoomType (
+    TypeID SERIAL PRIMARY KEY,
+    TypeName VARCHAR(50) UNIQUE NOT NULL,
+    MaxRooms INT DEFAULT 0 CHECK (MaxRooms >= 0),
+    BedsPerRoom INT DEFAULT 0 CHECK (BedsPerRoom >= 0),
+    ChargesPerDay NUMERIC(10,2) DEFAULT 0 CHECK (ChargesPerDay >= 0),
+    IsWardType BOOLEAN GENERATED ALWAYS AS (BedsPerRoom > 0) STORED
+);
+
+
+-- ============================================================================
+-- 6. Room
+-- ============================================================================
+CREATE TABLE Room (
+    RoomID SERIAL PRIMARY KEY,
+    TypeID INT NOT NULL REFERENCES RoomType(TypeID) ON DELETE RESTRICT,
+    RoomName VARCHAR(100) NOT NULL,
+    Status VARCHAR(20) DEFAULT 'Available' CHECK (Status IN ('Available','Occupied','Under Maintenance')),
+    TotalBeds INT DEFAULT 0 CHECK (TotalBeds >= 0),
+    OccupiedBeds INT DEFAULT 0 CHECK (OccupiedBeds >= 0),
+    CONSTRAINT chk_occupied_not_exceed_total CHECK (OccupiedBeds <= TotalBeds)
+);
+
+CREATE OR REPLACE FUNCTION trg_room_set_beds()
+RETURNS TRIGGER AS $$
+BEGIN
+    SELECT BedsPerRoom INTO NEW.TotalBeds FROM RoomType WHERE TypeID = NEW.TypeID;
+    IF NEW.TotalBeds IS NULL THEN
+        NEW.TotalBeds := 0;
+    END IF;
+    NEW.OccupiedBeds := 0;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_room_set_beds
+BEFORE INSERT ON Room
+FOR EACH ROW
+EXECUTE FUNCTION trg_room_set_beds();
+
+CREATE OR REPLACE FUNCTION trg_room_limit()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_count INT := 0;
+    v_max INT := 0;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM Room WHERE TypeID = NEW.TypeID;
+    SELECT MaxRooms INTO v_max FROM RoomType WHERE TypeID = NEW.TypeID;
+
+    IF v_max IS NOT NULL AND v_max > 0 AND v_count >= v_max THEN
+        RAISE EXCEPTION 'Maximum rooms limit reached for this RoomType.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_room_limit
+BEFORE INSERT ON Room
+FOR EACH ROW
+EXECUTE FUNCTION trg_room_limit();
+
+
+-- ============================================================================
+-- 7. Doctor
+-- ============================================================================
+CREATE TABLE Doctor (
+    EmpID INT PRIMARY KEY REFERENCES Employee(EmpID) ON DELETE CASCADE,
+    Specialization VARCHAR(100),
+    Qualification VARCHAR(100),
+    RoomID INT UNIQUE REFERENCES Room(RoomID) ON DELETE SET NULL,
+    ConsultationFee NUMERIC(10,2) DEFAULT 1000 CHECK (ConsultationFee >= 0)
+);
+
+CREATE OR REPLACE FUNCTION trg_doctor_room_check()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_beds INT := 0;
+BEGIN
+    IF NEW.RoomID IS NOT NULL THEN
+        SELECT BedsPerRoom INTO v_beds
+        FROM Room r JOIN RoomType rt ON r.TypeID = rt.TypeID
+        WHERE r.RoomID = NEW.RoomID;
+
+        IF v_beds IS NOT NULL AND v_beds > 0 THEN
+            RAISE EXCEPTION 'Doctor must be assigned to a non-bed (consultation/diagnostic) room.';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_doctor_room_check
+BEFORE INSERT OR UPDATE ON Doctor
+FOR EACH ROW
+EXECUTE FUNCTION trg_doctor_room_check();
+
+
+-- ============================================================================
+-- 8. DoctorAvailability
+-- ============================================================================
+CREATE TABLE DoctorAvailability (
+    AvailabilityID SERIAL PRIMARY KEY,
+    DoctorID INT NOT NULL REFERENCES Doctor(EmpID) ON DELETE CASCADE,
+    AvailableDate DATE NOT NULL,
+    StartTime TIME NOT NULL,
+    EndTime TIME NOT NULL,
+    CONSTRAINT chk_avail_time CHECK (StartTime < EndTime),
+    CONSTRAINT uq_doctor_avail UNIQUE (DoctorID, AvailableDate)
+);
+
+CREATE INDEX idx_doctor_availability ON DoctorAvailability(DoctorID, AvailableDate);
+
+
+-- ============================================================================
+-- 9. Appointment
+-- ============================================================================
+CREATE TABLE Appointment (
+    AppointmentID SERIAL PRIMARY KEY,
+    AppointmentDateTime TIMESTAMP NOT NULL,
+    Status VARCHAR(20) DEFAULT 'Scheduled' CHECK (Status IN ('Scheduled','Completed','Cancelled','Rescheduled')),
+    DoctorID INT NOT NULL REFERENCES Doctor(EmpID) ON DELETE RESTRICT,
+    PatientID INT NOT NULL REFERENCES Patient(PatientID) ON DELETE RESTRICT,
+    PrescriptionText TEXT,
+    RescheduleCount INT DEFAULT 0 CHECK (RescheduleCount >= 0),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP
+);
+
+CREATE INDEX idx_appt_doc_date ON Appointment (DoctorID, AppointmentDateTime);
+CREATE INDEX idx_appt_patient ON Appointment (PatientID, AppointmentDateTime);
+
+CREATE OR REPLACE FUNCTION trg_validate_appointment()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_count INT := 0;
+BEGIN
+    -- Check doctor's daily limit (5 appointments)
+    SELECT COUNT(*) INTO v_count FROM Appointment
+    WHERE DoctorID = NEW.DoctorID
+      AND DATE_TRUNC('day', AppointmentDateTime) = DATE_TRUNC('day', NEW.AppointmentDateTime)
+      AND Status IN ('Scheduled', 'Rescheduled')
+      AND AppointmentID != COALESCE(NEW.AppointmentID, -1);
+
+    IF v_count >= 5 THEN
+        RAISE EXCEPTION 'Doctor already has 5 scheduled appointments for this date.';
+    END IF;
+
+    -- Check patient has no conflicting appointment
+    SELECT COUNT(*) INTO v_count FROM Appointment
+    WHERE PatientID = NEW.PatientID
+      AND Status IN ('Scheduled','Rescheduled')
+      AND DATE_TRUNC('day', AppointmentDateTime) = DATE_TRUNC('day', NEW.AppointmentDateTime)
+      AND AppointmentID != COALESCE(NEW.AppointmentID, -1);
+
+    IF v_count > 0 THEN
+        RAISE EXCEPTION 'Patient already has an active appointment on this date.';
+    END IF;
+
+    -- Validate doctor availability
+    SELECT COUNT(*) INTO v_count
+    FROM DoctorAvailability da
+    WHERE da.DoctorID = NEW.DoctorID
+      AND da.AvailableDate = DATE(NEW.AppointmentDateTime)
+      AND (NEW.AppointmentDateTime::time >= da.StartTime AND NEW.AppointmentDateTime::time < da.EndTime);
+
+    IF v_count = 0 THEN
+        RAISE EXCEPTION 'Doctor is not available at this appointment datetime.';
+    END IF;
+
+    -- Check time slot availability (30-minute intervals)
+    SELECT COUNT(*) INTO v_count FROM Appointment
+    WHERE DoctorID = NEW.DoctorID
+      AND Status IN ('Scheduled', 'Rescheduled')
+      AND ABS(EXTRACT(EPOCH FROM (AppointmentDateTime - NEW.AppointmentDateTime))) < 1800
+      AND AppointmentID != COALESCE(NEW.AppointmentID, -1);
+
+    IF v_count > 0 THEN
+        RAISE EXCEPTION 'Time slot conflicts with another appointment (30-minute buffer required).';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_validate_appointment
+BEFORE INSERT OR UPDATE ON Appointment
+FOR EACH ROW
+EXECUTE FUNCTION trg_validate_appointment();
+
+CREATE OR REPLACE FUNCTION trg_appointment_update()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.UpdatedAt := CURRENT_TIMESTAMP;
+
+    IF TG_OP = 'UPDATE' AND OLD.AppointmentDateTime IS NOT NULL 
+       AND NEW.AppointmentDateTime <> OLD.AppointmentDateTime THEN
+        NEW.RescheduleCount := COALESCE(OLD.RescheduleCount, 0) + 1;
+        NEW.Status := 'Rescheduled';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_appointment_update
+BEFORE UPDATE ON Appointment
+FOR EACH ROW
+EXECUTE FUNCTION trg_appointment_update();
+
+
+-- ============================================================================
+-- 10. Admission
+-- ============================================================================
+CREATE TABLE Admission (
+    AdmissionID SERIAL PRIMARY KEY,
+    PatientID INT NOT NULL REFERENCES Patient(PatientID) ON DELETE RESTRICT,
+    RoomID INT NOT NULL REFERENCES Room(RoomID) ON DELETE RESTRICT,
+    AdmitDate DATE DEFAULT CURRENT_DATE NOT NULL,
+    DischargeDate DATE,
+    CONSTRAINT chk_dates CHECK (DischargeDate IS NULL OR DischargeDate >= AdmitDate)
+);
+
+CREATE INDEX idx_admission_patient ON Admission(PatientID);
+CREATE INDEX idx_admission_active ON Admission(PatientID) WHERE DischargeDate IS NULL;
+
+CREATE OR REPLACE FUNCTION trg_prevent_multiple_open_admissions()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_count INT := 0;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM Admission
+    WHERE PatientID = NEW.PatientID 
+      AND DischargeDate IS NULL
+      AND AdmissionID != COALESCE(NEW.AdmissionID, -1);
+
+    IF v_count > 0 THEN
+        RAISE EXCEPTION 'Patient already has an open admission. Discharge first.';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_prevent_multiple_open_admissions
+BEFORE INSERT OR UPDATE ON Admission
+FOR EACH ROW
+EXECUTE FUNCTION trg_prevent_multiple_open_admissions();
+
+CREATE OR REPLACE FUNCTION trg_check_room_availability()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_total INT := 0;
+    v_occ INT := 0;
+BEGIN
+    SELECT TotalBeds, OccupiedBeds INTO v_total, v_occ FROM Room WHERE RoomID = NEW.RoomID;
+
+    IF v_total IS NULL OR v_total = 0 THEN
+        RAISE EXCEPTION 'Selected room does not support beds (not a ward).';
+    END IF;
+
+    IF v_occ >= v_total THEN
+        RAISE EXCEPTION 'No beds available in this room/ward.';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_check_room_availability
+BEFORE INSERT ON Admission
+FOR EACH ROW
+EXECUTE FUNCTION trg_check_room_availability();
+
+CREATE OR REPLACE FUNCTION trg_increase_bed_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE Room SET OccupiedBeds = OccupiedBeds + 1 WHERE RoomID = NEW.RoomID;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_increase_bed_count
+AFTER INSERT ON Admission
+FOR EACH ROW
+EXECUTE FUNCTION trg_increase_bed_count();
+
+CREATE OR REPLACE FUNCTION trg_decrease_bed_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.DischargeDate IS NULL AND NEW.DischargeDate IS NOT NULL THEN
+        UPDATE Room SET OccupiedBeds = GREATEST(OccupiedBeds - 1, 0) WHERE RoomID = OLD.RoomID;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_decrease_bed_count
+AFTER UPDATE ON Admission
+FOR EACH ROW
+EXECUTE FUNCTION trg_decrease_bed_count();
+
+
+-- ============================================================================
+-- 11. Bill
+-- ============================================================================
+CREATE TABLE Bill (
+    BillID SERIAL PRIMARY KEY,
+    AppointmentID INT REFERENCES Appointment(AppointmentID) ON DELETE SET NULL,
+    AdmissionID INT REFERENCES Admission(AdmissionID) ON DELETE SET NULL,
+    Amount NUMERIC(10,2) NOT NULL CHECK (Amount >= 0),
+    BillDate DATE DEFAULT CURRENT_DATE,
+    PaymentStatus VARCHAR(20) DEFAULT 'Pending' CHECK (PaymentStatus IN ('Paid','Unpaid','Pending')),
+    PaymentMethod VARCHAR(20) CHECK (PaymentMethod IN ('Cash','Credit Card','Debit Card','Insurance','Online','Other')),
+    CONSTRAINT chk_bill_ref CHECK ((AppointmentID IS NOT NULL) OR (AdmissionID IS NOT NULL))
+);
+
+CREATE INDEX idx_bill_appointment ON Bill(AppointmentID);
+CREATE INDEX idx_bill_admission ON Bill(AdmissionID);
+
+
+-- ============================================================================
+-- 12. Additional Tables
+-- ============================================================================
+CREATE TABLE HolidayCalendar (
+    HolidayDate DATE PRIMARY KEY,
+    Reason VARCHAR(200)
+);
+
+CREATE TABLE RoomTypeStats (
+    TypeID INT PRIMARY KEY REFERENCES RoomType(TypeID) ON DELETE CASCADE,
+    TotalOccupancy INT DEFAULT 0
+);
+
+
+-- ============================================================================
+-- 13. Audit Tables
+-- ============================================================================
+CREATE TABLE Appointment_Audit (
+    AuditID SERIAL PRIMARY KEY,
+    AppointmentID INT,
+    ActionType VARCHAR(20),
+    OldDateTime TIMESTAMP,
+    NewDateTime TIMESTAMP,
+    OldStatus VARCHAR(20),
+    NewStatus VARCHAR(20),
+    ChangedBy VARCHAR(50),
+    ChangeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Doctor_Audit (
+    AuditID SERIAL PRIMARY KEY,
+    DoctorID INT,
+    ActionType VARCHAR(20),
+    OldRoomID INT,
+    NewRoomID INT,
+    OldDepartmentID INT,
+    NewDepartmentID INT,
+    ChangedBy VARCHAR(50),
+    ChangeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Admission_Audit (
+    AuditID SERIAL PRIMARY KEY,
+    AdmissionID INT,
+    ActionType VARCHAR(20),
+    OldRoomID INT,
+    NewRoomID INT,
+    OldDischargeDate DATE,
+    NewDischargeDate DATE,
+    ChangedBy VARCHAR(50),
+    ChangeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- ============================================================================
+-- SOFT DELETE TRIGGERS
+-- ============================================================================
+CREATE OR REPLACE FUNCTION prevent_doctor_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE EXCEPTION 'Doctor records cannot be deleted. Mark Employee.IsActive = ''N'' instead.';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_doctor_delete
+BEFORE DELETE ON Doctor
+FOR EACH ROW
+EXECUTE FUNCTION prevent_doctor_delete();
+
+CREATE OR REPLACE FUNCTION prevent_appointment_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE EXCEPTION 'Appointments cannot be deleted. Change Status to Cancelled instead.';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_appointment_delete
+BEFORE DELETE ON Appointment
+FOR EACH ROW
+EXECUTE FUNCTION prevent_appointment_delete();
+
+CREATE OR REPLACE FUNCTION prevent_admission_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE EXCEPTION 'Admission records cannot be deleted. Discharge instead.';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER prevent_admission_delete
+BEFORE DELETE ON Admission
+FOR EACH ROW
+EXECUTE FUNCTION prevent_admission_delete();
+
+
+-- ============================================================================
+-- SAMPLE DATA
+-- ============================================================================
+
+-- Insert Departments
+INSERT INTO Department (DeptName, Location) VALUES
+('Neurology', 'Building B'),
+('Pediatrics', 'Building C'),
+('Radiology', 'Building D'),
+('General Surgery', 'Building E');
+
+-- Insert RoomTypes
+INSERT INTO RoomType(TypeName, MaxRooms, BedsPerRoom, ChargesPerDay) VALUES
+('Consultation', 50, 0, 1000),
+('Examination', 2, 0, 1500),
+('Procedure', 2, 0, 2000),
+('CT Scan', 1, 0, 7000),
+('X-Ray', 2, 0, 1500),
+('MRI', 1, 0, 12000),
+('Ultrasound', 2, 0, 2000),
+('Laboratory', 1, 0, 500),
+('Operation Theatre', 3, 0, 0),
+('General Ward', 1, 15, 3000),
+('Semi-Private', 2, 2, 6000),
+('Private Room', 5, 1, 10000),
+('ICU', 1, 10, 25000),
+('Pediatric Ward', 1, 5, 4000),
+('Maternity Ward', 1, 5, 5000),
+('Emergency', 1, 10, 0),
+('Recovery', 1, 15, 3000);
+
+-- Insert test user
+INSERT INTO UserAuth (Username, Email, PasswordHash, UserType)
+VALUES ('drtest', 'doctor@example.com',
+'$2b$12$7b8OQLu6SlcVqP1ShPg2c.rlWmFDl4kee5n2onCqSwG8ccw9mPG4y', 
+'Doctor');
+
+INSERT INTO Employee (UserID, Name, Gender, Role, Contact, Salary, DeptID)
+VALUES (1, 'Dr. Test User', 'Male', 'Doctor', '03001234567', 150000, 1);
+
+INSERT INTO Room (TypeID, RoomName)
+VALUES (1, 'Consultation Room 1');
+
+INSERT INTO Doctor (EmpID, Specialization, Qualification, RoomID, ConsultationFee)
+VALUES (1, 'General Physician', 'MBBS', 1, 1000);
+
+-- Add doctor availability for testing
+INSERT INTO DoctorAvailability (DoctorID, AvailableDate, StartTime, EndTime)
+VALUES (1, CURRENT_DATE, '09:00:00', '17:00:00');
+
+-- 1. Check UserAuth test doctor
+SELECT UserID, Username, Email, UserType, IsActive, CreatedAt 
+FROM UserAuth WHERE Username = 'drtest';
+-- Expected: UserID=1, UserType='Doctor', IsActive='Y'
+-- 2. Check Employee → Doctor linkage
+SELECT 
+    e.EmpID, e.Name, e.Role, e.DeptID, 
+    d.Specialization, d.RoomID, d.ConsultationFee
+FROM Employee e 
+LEFT JOIN Doctor d ON e.EmpID = d.EmpID 
+WHERE e.UserID = 1;
+-- Expected: EmpID=1, Role='Doctor', RoomID=1, Specialization='General Physician'
+-- 3. Verify RoomType → Room (triggers set beds correctly)
+SELECT 
+    rt.TypeName, rt.MaxRooms, rt.BedsPerRoom, rt.ChargesPerDay,
+    r.RoomID, r.RoomName, r.TotalBeds, r.OccupiedBeds, r.Status
+FROM RoomType rt 
+JOIN Room r ON rt.TypeID = r.TypeID 
+WHERE r.RoomID = 1;
+-- Expected: TypeName='Consultation', TotalBeds=0, OccupiedBeds=0
+
+-- 4. Doctor room validation (should pass - non-ward room)
+SELECT 
+    d.EmpID, d.RoomID, d.ConsultationFee,
+    rt.TypeName, rt.BedsPerRoom as WardCheck
+FROM Doctor d 
+JOIN Room r ON d.RoomID = r.RoomID 
+JOIN RoomType rt ON r.TypeID = rt.TypeID 
+WHERE d.EmpID = 1;
+-- Expected: BedsPerRoom=0 (non-ward), passes trg_doctor_room_check
+
+-- 5. DoctorAvailability
+SELECT * FROM DoctorAvailability WHERE DoctorID = 1;
+-- Expected: 1 row with today's date, 09:00-17:00
+
+
+-- 6. Complete chain verification
+SELECT 
+    'UserAuth' as TableCheck, COUNT(*) as Records FROM UserAuth WHERE UserID=1
+UNION ALL SELECT 'Employee', COUNT(*) FROM Employee WHERE UserID=1
+UNION ALL SELECT 'Doctor', COUNT(*) FROM Doctor WHERE EmpID=1
+UNION ALL SELECT 'Room', COUNT(*) FROM Room WHERE RoomID=1
+UNION ALL SELECT 'DoctorAvailability', COUNT(*) FROM DoctorAvailability WHERE DoctorID=1;
+-- Expected: All show 1 record ✓
