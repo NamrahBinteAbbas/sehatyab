@@ -84,15 +84,15 @@ def register():
 def login():
     try:
         data = request.json
-        username = data.get('username')
+        userid = data.get('userid')
         password = data.get('password')
         
-        if not all([username, password]):
-            return jsonify({'error': 'Missing username or password'}), 400
+        if not all([userid, password]):
+            return jsonify({'error': 'Missing userid or password'}), 400
         
         user = execute_query(
-            "SELECT UserID, Username, Email, PasswordHash, UserType, IsActive FROM UserAuth WHERE Username = %s",
-            (username,)
+            "SELECT UserID, Username, Email, PasswordHash, UserType, IsActive FROM UserAuth WHERE userid = %s",
+            (userid,)
         )
         
         if not user:

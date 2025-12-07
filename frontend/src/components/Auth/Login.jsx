@@ -4,7 +4,7 @@ import { Container, Paper, TextField, Button, Typography, Box, Alert } from '@mu
 import { authAPI } from '../../services/api';
 
 function Login({ setUser }) {
-  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [formData, setFormData] = useState({ userid: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -46,11 +46,11 @@ function Login({ setUser }) {
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
-              label="Username"
+              label="UserID"
               margin="normal"
               required
               value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, userid: e.target.value })}
             />
             <TextField
               fullWidth

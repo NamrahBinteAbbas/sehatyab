@@ -1,20 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
-  Box, Typography, Paper, TextField, Button, MenuItem, Grid,
-  Alert, CircularProgress, Card, CardContent, Chip
-} from '@mui/material';
-import { patientAPI } from '../../services/api';
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  Button,
+  MenuItem,
+  Grid,
+  Alert,
+  CircularProgress,
+  Card,
+  CardContent,
+  Chip,
+} from "@mui/material";
+import { patientAPI } from "../../services/api";
 
 function BookAppointment() {
   const [departments, setDepartments] = useState([]);
   const [doctors, setDoctors] = useState([]);
   const [availability, setAvailability] = useState([]);
-  const [selectedDept, setSelectedDept] = useState('');
-  const [selectedDoctor, setSelectedDoctor] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedDept, setSelectedDept] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const [message, setMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
     loadDepartments();
@@ -37,7 +47,7 @@ function BookAppointment() {
       const response = await patientAPI.getDepartments();
       setDepartments(response.data);
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to load departments' });
+      setMessage({ type: "error", text: "Failed to load departments" });
     }
   };
 
@@ -46,7 +56,7 @@ function BookAppointment() {
       const response = await patientAPI.getDoctors(deptId);
       setDoctors(response.data);
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to load doctors' });
+      setMessage({ type: "error", text: "Failed to load doctors" });
     }
   };
 
@@ -55,37 +65,48 @@ function BookAppointment() {
       const response = await patientAPI.getDoctorAvailability(doctorId, date);
       setAvailability(response.data);
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to load availability' });
+      setMessage({ type: "error", text: "Failed to load availability" });
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage({ type: '', text: '' });
+    setMessage({ type: "", text: "" });
 
     try {
-      const appointmentDateTime = `${selectedDate} ${selectedTime}`;
+      // Format datetime as ISO string (no timezone info - will be treated as PKT)
+      const appointmentDateTime = `${selectedDate}T${selectedTime}:00`;
+
       await patientAPI.bookAppointment({
         doctor_id: selectedDoctor,
-        appointment_datetime: appointmentDateTime
+        appointment_datetime: appointmentDateTime,
       });
-      
-      setMessage({ type: 'success', text: 'Appointment booked successfully!' });
-      setSelectedDept('');
-      setSelectedDoctor('');
-      setSelectedDate('');
-      setSelectedTime('');
+
+      setMessage({ type: "success", text: "Appointment booked successfully!" });
+      setSelectedDept("");
+      setSelectedDoctor("");
+      setSelectedDate("");
+      setSelectedTime("");
       setAvailability([]);
     } catch (error) {
-      setMessage({ type: 'error', text: error.response?.data?.error || 'Failed to book appointment' });
+      setMessage({
+        type: "error",
+        text: error.response?.data?.error || "Failed to book appointment",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const getTodayDate = () => {
-    return new Date().toISOString().split('T')[0];
+    return new Date().toISOString().split("T")[0];
+  };
+
+  // Format time for display (HH:MM from HH:MM:SS)
+  const formatTime = (timeString) => {
+    if (!timeString) return "";
+    return timeString.substring(0, 5);
   };
 
   return (
@@ -95,7 +116,11 @@ function BookAppointment() {
       </Typography>
 
       {message.text && (
-        <Alert severity={message.type} sx={{ mb: 2 }}>
+        <Alert
+          severity={message.type}
+          sx={{ mb: 2 }}
+          onClose={() => setMessage({ type: "", text: "" })}
+        >
           {message.text}
         </Alert>
       )}
@@ -111,7 +136,7 @@ function BookAppointment() {
                 value={selectedDept}
                 onChange={(e) => {
                   setSelectedDept(e.target.value);
-                  setSelectedDoctor('');
+                  setSelectedDoctor("");
                   setDoctors([]);
                 }}
                 required
@@ -136,7 +161,8 @@ function BookAppointment() {
               >
                 {doctors.map((doctor) => (
                   <MenuItem key={doctor.empid} value={doctor.empid}>
-                    {doctor.name} - {doctor.specialization} (Rs. {doctor.consultationfee})
+                    {doctor.name} - {doctor.specialization} (Rs.{" "}
+                    {doctor.consultationfee})
                   </MenuItem>
                 ))}
               </TextField>
@@ -179,7 +205,7 @@ function BookAppointment() {
                     {availability.map((slot) => (
                       <Box key={slot.availabilityid} sx={{ mb: 1 }}>
                         <Chip
-                          label={`${new Date(slot.availabledate).toLocaleDateString()} - ${slot.starttime.substring(0, 5)} to ${slot.endtime.substring(0, 5)}`}
+                          label={`${new Date(slot.availabledate).toLocaleDateString()} - ${formatTime(slot.starttime)} to ${formatTime(slot.endtime)}`}
                           color="primary"
                           variant="outlined"
                         />
@@ -198,7 +224,7 @@ function BookAppointment() {
                 disabled={loading}
                 fullWidth
               >
-                {loading ? <CircularProgress size={24} /> : 'Book Appointment'}
+                {loading ? <CircularProgress size={24} /> : "Book Appointment"}
               </Button>
             </Grid>
           </Grid>
